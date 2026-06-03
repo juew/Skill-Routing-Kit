@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+import subprocess
+import sys
+import tempfile
+import unittest
+import json
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+ROUTE = ROOT / "scripts" / "route_request.py"
+REGISTRY = ROOT / "registry" / "core-capabilities.json"
+
+
+def run_route(request: str, *args: str) -> str:
+    result = subprocess.run(
+        [sys.executable, str(ROUTE), "--registry", str(REGISTRY), *args, request],
+        cwd=str(ROOT),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=True,
+    )
+    return result.stdout
+
+
+class RouteRequestTests(unittest.TestCase):
+    def test_pdf_to_ppt_routes_to_presentations(self):
+        output = run_route("把这个 PDF 整理成一份 PPT")
+        first_lines = "\n".join(output.splitlines()[:3])
+        self.assertIn("Presentations", first_lines)
+        self.assertIn("PDF", output)
+
+    def test_frontend_bug_routes_to_debugging(self):
+        output = run_route("帮我修这个前端页面的控制台 error 并验证页面")
+        first_lines = "\n".join(output.splitlines()[:3])
+        self.assertIn("Systematic Debugging", first_lines)
+        self.assertIn("Frontend", output)
+
+    def test_github_needs_confirmation(self):
+        output = run_route("帮我把 GitHub PR 评论修掉")
+        self.assertIn("GitHub", output)
+        self.assertIn("Needs confirmation", output)
+
+    def test_routing_diagnostic_routes_to_skill_router(self):
+        output = run_route("为什么 pdf skill 没有命中这个请求")
+        first_lines = "\n".join(output.splitlines()[:3])
+        self.assertIn("Skill Router", first_lines)
+
+    def test_registry_check(self):
+        result = subprocess.run(
+            [sys.executable, str(ROUTE), "--registry", str(REGISTRY), "--check-registry"],
+            cwd=str(ROOT),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        self.assertEqual(result.returncode, 0)
+        self.assertIn("Capabilities:", result.stdout)
+
+    def test_debug_output_shows_candidates_but_default_does_not(self):
+        default_output = run_route("帮我把 PDF 变成 PPT")
+        self.assertNotIn("Debug candidates:", default_output)
+        self.assertNotRegex(default_output, r"\n-\s+\d+\s+")
+
+        debug_output = run_route("帮我把 PDF 变成 PPT", "--debug")
+        self.assertIn("Debug candidates:", debug_output)
+        self.assertRegex(debug_output, r"\n-\s+\d+\s+")
+
+    def test_missing_registry_is_reported_without_traceback(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            missing = Path(tmp) / "missing.json"
+            result = subprocess.run(
+                [sys.executable, str(ROUTE), "--registry", str(missing), "--check-registry"],
+                cwd=str(ROOT),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Registry not found", result.stdout)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_registry_warnings_for_stale_schema_and_missing_source(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            registry = Path(tmp) / "registry.json"
+            registry.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "0.1",
+                        "generated_at": "2020-01-01T00:00:00+00:00",
+                        "capabilities": [
+                            {
+                                "id": "fake",
+                                "name": "Fake",
+                                "kind": "skill",
+                                "categories": [],
+                                "provenance": {
+                                    "source_type": "skill",
+                                    "path": str(Path(tmp) / "missing" / "SKILL.md"),
+                                },
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [sys.executable, str(ROUTE), "--registry", str(registry), "--check-registry"],
+                cwd=str(ROOT),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("stale", result.stdout)
+        self.assertIn("schema_version", result.stdout)
+        self.assertIn("source path", result.stdout)
+
+    def test_build_registry_dry_run_and_refresh_custom_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "custom-registry.json"
+            dry = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "scripts" / "build_registry.py"),
+                    "--output",
+                    str(output),
+                    "--dry-run",
+                ],
+                cwd=str(ROOT),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            )
+            self.assertIn("registry summary", dry.stdout)
+            self.assertFalse(output.exists())
+
+            refreshed = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROUTE),
+                    "--registry",
+                    str(output),
+                    "--refresh",
+                    "--check-registry",
+                ],
+                cwd=str(ROOT),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            )
+            self.assertTrue(output.exists())
+            self.assertIn("Warnings: none", refreshed.stdout)
+
+
+if __name__ == "__main__":
+    unittest.main()

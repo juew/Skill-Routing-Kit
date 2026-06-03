@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "request": "帮我修这个前端页面的控制台报错并验证页面",
+      "expected_primary": "superpowers-systematic-debugging",
+      "expected_helpers": ["frontend-testing-debugging"],
+      "expected_notes": ["local-first", "browser verification"]
+    },
+    {
+      "request": "把这个 PDF 整理成一份 PPT",
+      "expected_primary": "presentations",
+      "expected_helpers": ["pdf"],
+      "expected_notes": ["presentation is final artifact"]
+    },
+    {
+      "request": "分析这个 CSV 并生成一个 Excel 报告",
+      "expected_primary": "spreadsheets",
+      "expected_helpers": [],
+      "expected_notes": ["local spreadsheet artifact"]
+    },
+    {
+      "request": "根据 Linear issue 实现这个功能",
+      "expected_primary": "superpowers-writing-plans",
+      "expected_helpers": [],
+      "expected_needs_confirmation": ["Linear connector access"],
+      "expected_notes": ["external connector explicit"]
+    },
+    {
+      "request": "总结 Slack 里这个项目最近讨论",
+      "expected_primary": "slack",
+      "expected_helpers": [],
+      "expected_needs_confirmation": ["Slack connector access"],
+      "expected_notes": ["external connector explicit"]
+    },
+    {
+      "request": "帮我创建一个客户 review 看板网页",
+      "expected_primary": "frontend-app-builder",
+      "expected_helpers": [],
+      "expected_notes": ["web app final artifact"]
+    },
+    {
+      "request": "帮我安排三个 agent 分别审核这个方案",
+      "expected_primary": "subagent-orchestration",
+      "expected_helpers": [],
+      "expected_notes": ["multi-agent explicit"]
+    },
+    {
+      "request": "为什么 pdf skill 没有命中这个请求",
+      "expected_primary": "skill-router",
+      "expected_helpers": [],
+      "expected_notes": ["diagnostic request"]
+    },
+    {
+      "request": "给我写一个普通函数说明",
+      "expected_primary": null,
+      "expected_helpers": [],
+      "expected_notes": ["ordinary explanation, no routing report"]
+    },
+    {
+      "request": "帮我把 GitHub PR 评论修掉",
+      "expected_primary": "github",
+      "expected_helpers": ["superpowers-systematic-debugging"],
+      "expected_needs_confirmation": ["GitHub connector access"],
+      "expected_notes": ["GitHub explicit"]
+    },
+    {
+      "request": "生成一个产品发布海报图片",
+      "expected_primary": "imagegen",
+      "expected_helpers": [],
+      "expected_notes": ["bitmap image output"]
+    },
+    {
+      "request": "帮我写 Word 版项目报告并渲染检查",
+      "expected_primary": "documents",
+      "expected_helpers": [],
+      "expected_notes": ["docx final artifact"]
+    }
+  ]
+}
