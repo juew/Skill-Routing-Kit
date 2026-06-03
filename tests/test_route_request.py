@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ROUTE = ROOT / "scripts" / "route_request.py"
 REGISTRY = ROOT / "registry" / "core-capabilities.json"
+INSTALL = ROOT / "scripts" / "install.py"
 
 
 def run_route(request: str, *args: str) -> str:
@@ -154,6 +155,65 @@ class RouteRequestTests(unittest.TestCase):
             )
             self.assertTrue(output.exists())
             self.assertIn("Warnings: none", refreshed.stdout)
+
+    def test_installer_creates_target_and_agents_snippet(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp) / "codex" / "plugins" / "skill-routing-kit"
+            agents = Path(tmp) / "AGENTS.md"
+
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(INSTALL),
+                    "--target",
+                    str(target),
+                    "--install-agents",
+                    "--agents",
+                    str(agents),
+                ],
+                cwd=str(ROOT),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            )
+
+            self.assertTrue((target / ".codex-plugin" / "plugin.json").exists())
+            self.assertTrue((target / "skills" / "skill-router" / "SKILL.md").exists())
+            self.assertFalse((target / ".git").exists())
+            self.assertIn("BEGIN Skill Routing Kit", agents.read_text(encoding="utf-8"))
+
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(INSTALL),
+                    "--target",
+                    str(target),
+                    "--install-agents",
+                    "--agents",
+                    str(agents),
+                ],
+                cwd=str(ROOT),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            )
+
+            agents_text = agents.read_text(encoding="utf-8")
+            self.assertEqual(agents_text.count("BEGIN Skill Routing Kit"), 1)
+
+    def test_installer_rejects_target_inside_repository(self):
+        target = ROOT / "tmp-install-target"
+        result = subprocess.run(
+            [sys.executable, str(INSTALL), "--target", str(target)],
+            cwd=str(ROOT),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("cannot be inside", result.stderr)
 
 
 if __name__ == "__main__":

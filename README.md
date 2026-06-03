@@ -14,6 +14,28 @@ Skill Routing Kit 是一个用于提升 Codex skill/plugin 命中率的插件。
 - An `AGENTS.md` snippet that can make routing a default silent guardrail.
 - Bilingual documentation for installation, daily use, updates, and removal.
 
+## Install
+
+For non-technical users, the recommended path is to ask Codex to install it:
+
+```text
+Please install the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit and enable the routing guard in the current project's AGENTS.md. Do not ask me to create directories manually; use the repository installer and verify the plugin after installation.
+```
+
+不熟悉命令行的用户，可以直接把下面这句话复制给 Codex：
+
+```text
+请从 https://github.com/juew/Skill-Routing-Kit 安装 Skill Routing Kit 插件，并把路由规则启用到当前项目的 AGENTS.md。不要让我手动创建目录；请使用仓库里的安装脚本完成安装，并在安装后验证插件。
+```
+
+One-command install:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents
+```
+
+This creates the needed directories automatically.
+
 ## Quick Start
 
 Validate the plugin:

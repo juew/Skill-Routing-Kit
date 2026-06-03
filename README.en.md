@@ -48,7 +48,61 @@ The routing guard is the part that improves daily hit rate. The registry and dia
 
 ## Installation
 
-Copy or publish this directory as a Codex plugin:
+### Recommended: ask Codex to install it
+
+If you are not comfortable with terminals, directory structures, or plugin setup, paste this into Codex:
+
+```text
+Please install the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit and enable the routing guard in the current project's AGENTS.md. Do not ask me to create directories manually; use the repository installer and verify the plugin after installation.
+```
+
+Codex should handle:
+
+- downloading or cloning the repository
+- creating local directories
+- installing plugin files
+- adding the `AGENTS.md` routing guard when requested
+- running basic validation
+
+You should not need to manually create `.codex-plugin`, `skills`, or `registry` directories.
+
+### One-command install
+
+If you are comfortable running one terminal command:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents
+```
+
+By default, this installs the plugin to:
+
+```text
+~/.codex/plugins/skill-routing-kit
+```
+
+and writes the routing guard to:
+
+```text
+~/.codex/AGENTS.md
+```
+
+To install only the plugin without writing `AGENTS.md`:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)"
+```
+
+To write the routing guard into a specific project:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents --agents "/path/to/project/AGENTS.md"
+```
+
+Restart Codex or reload plugins if the new plugin does not appear immediately.
+
+### Advanced: manual install
+
+The plugin layout is shown here only for maintainers and advanced troubleshooting:
 
 ```text
 skill-routing-kit/
@@ -60,24 +114,18 @@ skill-routing-kit/
 └── assets/
 ```
 
-Then install the plugin through your Codex plugin workflow.
+The always-on routing guard lives at:
 
-To activate the always-on routing guard, copy the snippet from:
-
-```bash
+```text
 assets/agents-routing-snippet.md
 ```
 
-into your project or global `AGENTS.md`.
-
-The snippet is marked with:
+The snippet is marked so it can be removed safely:
 
 ```text
 BEGIN Skill Routing Kit
 END Skill Routing Kit
 ```
-
-so it can be removed later.
 
 ## Daily Usage
 

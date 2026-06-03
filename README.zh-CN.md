@@ -63,7 +63,61 @@ Diagnostic Plugin
 
 ## 安装方式
 
-将本目录作为 Codex 插件安装或发布：
+### 推荐：直接让 Codex 安装
+
+如果你不熟悉命令行、目录结构或插件安装流程，直接把下面这句话复制给 Codex：
+
+```text
+请从 https://github.com/juew/Skill-Routing-Kit 安装 Skill Routing Kit 插件，并把路由规则启用到当前项目的 AGENTS.md。不要让我手动创建目录；请使用仓库里的安装脚本完成安装，并在安装后验证插件。
+```
+
+Codex 应该替你完成这些事：
+
+- 下载或克隆仓库
+- 创建需要的本地目录
+- 安装插件文件
+- 按需写入 `AGENTS.md` 路由规则
+- 运行插件校验和基础测试
+
+你不需要手动创建 `.codex-plugin`、`skills`、`registry` 这些目录。
+
+### 一行命令安装
+
+如果你愿意在终端里执行一条命令：
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents
+```
+
+默认安装到：
+
+```text
+~/.codex/plugins/skill-routing-kit
+```
+
+并把路由规则写入：
+
+```text
+~/.codex/AGENTS.md
+```
+
+如果你只想安装插件、不自动写入 `AGENTS.md`：
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)"
+```
+
+如果你想把路由规则写入某个项目的 `AGENTS.md`：
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents --agents "/path/to/project/AGENTS.md"
+```
+
+安装后如果 Codex 没有立刻识别新插件，请重启 Codex 或重新加载插件。
+
+### 高级用户：手动安装
+
+插件目录结构如下，供发布者或高级用户排查使用：
 
 ```text
 skill-routing-kit/
@@ -75,24 +129,18 @@ skill-routing-kit/
 └── assets/
 ```
 
-然后通过你的 Codex 插件安装流程安装。
+日常静默路由规则位于：
 
-要启用日常静默路由，请复制：
-
-```bash
+```text
 assets/agents-routing-snippet.md
 ```
 
-到项目或全局 `AGENTS.md`。
-
-片段带有明确标记：
+片段带有明确标记，方便以后安全删除：
 
 ```text
 BEGIN Skill Routing Kit
 END Skill Routing Kit
 ```
-
-以后可以安全删除。
 
 ## 日常使用方式
 
