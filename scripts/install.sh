@@ -2,8 +2,15 @@
 set -euo pipefail
 
 REPO_URL="${SKILL_ROUTING_KIT_REPO:-https://github.com/juew/Skill-Routing-Kit.git}"
-SCRIPT_SOURCE="${BASH_SOURCE[0]:-$0}"
-SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_SOURCE")" >/dev/null 2>&1 && pwd || true)"
+SCRIPT_SOURCE="${BASH_SOURCE[0]:-}"
+if [[ -z "$SCRIPT_SOURCE" || "$SCRIPT_SOURCE" == -* ]]; then
+  SCRIPT_SOURCE="${0:-}"
+fi
+
+SCRIPT_DIR=""
+if [[ -n "$SCRIPT_SOURCE" && "$SCRIPT_SOURCE" != -* ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_SOURCE")" >/dev/null 2>&1 && pwd || true)"
+fi
 
 cleanup_dir=""
 if [[ -n "$SCRIPT_DIR" && -f "$SCRIPT_DIR/../.codex-plugin/plugin.json" ]]; then
