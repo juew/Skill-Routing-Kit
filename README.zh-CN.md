@@ -44,6 +44,27 @@ Diagnostic Plugin
   显式调用的诊断工具，用于排查为什么没命中、更新索引、改进 skill 描述。
 ```
 
+提高命中率的方法论：
+
+1. **描述何时用**  
+   每个 skill/plugin 都要能回答“什么任务、什么输入、什么最终交付物出现时应该用我”。这对应 registry card 里的 `use_when`、`inputs`、`outputs`，也对应 skill 描述里的触发条件。
+
+2. **分层路由设计**  
+   先按 `process/source/artifact/domain/risk` 分类，再决定主能力和辅助能力。比如“把 PDF 做成 PPT”里，最终交付物决定主能力是 Presentations，PDF 只作为输入处理能力参与。
+
+3. **增加负样本描述**  
+   每张 card 必须说明 `avoid_when`，也就是“什么时候不要用”。负样本用来减少误触发，例如 connector 未被明确点名时不主动访问外部数据，或 PDF 只是输入时不把 PDF skill 当主能力。
+
+4. **召回加重排**  
+   路由先宽召回候选能力，再按最终交付物、素材来源、任务动作、风险/权限要求重排。v1 使用保守关键词和分类匹配；registry 的结构是为了以后替换成 embedding 或更强 reranker 时不用重写文档和能力卡。
+
+这四点分别落在：
+
+- `SKILL.md` 描述：让模型知道何时该考虑某个 skill。
+- `registry/*.json`：保存可检索的 `use_when/categories/avoid_when`。
+- `scripts/route_request.py`：执行召回、打分、重排和诊断。
+- `AGENTS.md` 片段：把路由判断变成日常默认动作。
+
 核心原则：
 
 1. **强制路由判断，但不强制展示报告**  

@@ -14,6 +14,17 @@ Skill Routing Kit 是一个用于提升 Codex skill/plugin 命中率的插件。
 - An `AGENTS.md` snippet that can make routing a default silent guardrail.
 - Bilingual documentation for installation, daily use, updates, and removal.
 
+## Routing Methodology
+
+Skill Routing Kit improves hit rate by turning skill/plugin selection into a small retrieval-and-ranking loop:
+
+- describe **when to use** each capability;
+- classify capabilities into layered routing categories such as `process/source/artifact/domain/risk`;
+- describe **when not to use** each capability with negative examples;
+- recall broad candidates first, then rerank by final artifact, source, task action, and risk.
+
+中文完整说明见 [README.zh-CN.md](README.zh-CN.md) 的“设计原理与实现逻辑”。
+
 ## Install
 
 For non-technical users, the recommended path is to ask Codex to install it:

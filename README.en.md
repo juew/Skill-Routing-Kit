@@ -46,6 +46,29 @@ Diagnostic Plugin
 
 The routing guard is the part that improves daily hit rate. The registry and diagnostic script help it stay maintainable and explainable.
 
+## Routing Methodology
+
+Skill Routing Kit improves hit rate through a small retrieval-and-ranking loop:
+
+1. **Describe when to use a capability**  
+   Every skill/plugin should answer: what task, input, and final artifact should trigger me? This maps to `use_when`, `inputs`, and `outputs` in registry cards, and to trigger language in skill descriptions.
+
+2. **Use layered routing**  
+   Classify first by `process/source/artifact/domain/risk`, then select a primary capability plus helper capabilities. For example, “turn this PDF into a slide deck” should route primarily to Presentations because the final artifact is slides; PDF handling is a helper.
+
+3. **Add negative examples**  
+   Every card needs `avoid_when`: when not to use the capability. Negative examples reduce false positives, such as not elevating connectors unless the user names them or treating PDF as the primary skill when PDF is only an input.
+
+4. **Recall, then rerank**  
+   The router recalls broad candidates, then reranks by final artifact, source location, task action, and risk/permission requirements. v1 uses conservative keyword/category matching; the registry shape is designed so embedding or stronger rerankers can be added later without rewriting capability cards.
+
+These pieces map to the implementation:
+
+- `SKILL.md` descriptions tell the model when to consider a skill.
+- `registry/*.json` stores searchable `use_when/categories/avoid_when`.
+- `scripts/route_request.py` performs recall, scoring, reranking, and diagnostics.
+- the `AGENTS.md` snippet makes routing a default daily guardrail.
+
 ## Installation
 
 ### Recommended: ask Codex to install it
