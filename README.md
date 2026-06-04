@@ -189,6 +189,7 @@ Star this repo if you are:
 - [Demo scenarios](docs/demo.md)
 - [Release notes](docs/release-v0.1.0.md)
 - [Promotion kit](docs/promotion-kit.md)
+- [Launch pack](docs/launch/README.md)
 - [Contributing guide](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
 
