@@ -1,6 +1,6 @@
 {
   "name": "skill-routing-kit",
-  "version": "0.1.0+codex.20260604030535",
+  "version": "0.1.0+codex.20260604031504",
   "description": "Local-first skill and plugin routing guard, registry, and diagnostics for Codex.",
   "author": {
     "name": "Zhonghao"
@@ -13,6 +13,9 @@
     "defaultPrompt": "Use Skill Routing Kit to diagnose which Codex skill or plugin should handle a request, refresh the local capability registry, or improve skill routing hit rate.",
     "developerName": "Zhonghao",
     "category": "Productivity",
+    "brandColor": "#22D3EE",
+    "composerIcon": "./assets/composer-icon.png",
+    "logo": "./assets/logo.png",
     "capabilities": [
       "Skill routing guard",
       "Local capability registry",
