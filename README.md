@@ -19,13 +19,13 @@ Skill Routing Kit 是一个用于提升 Codex skill/plugin 命中率的插件。
 For non-technical users, the recommended path is to ask Codex to install it:
 
 ```text
-Please install the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit into the global Codex plugin directory, normally ~/.codex/plugins/skill-routing-kit. Do not install the plugin into the current project. Only enable the routing guard in the current project's AGENTS.md. Do not ask me to create directories manually; use the repository installer and verify the plugin after installation.
+Please install the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit into the global Codex plugin directory, normally ~/.codex/plugins/skill-routing-kit. Enable the routing guard globally in ~/.codex/AGENTS.md by default, so all projects can benefit. Do not install the plugin into the current project. Do not ask me to create directories manually; use the repository installer and verify the plugin after installation.
 ```
 
 不熟悉命令行的用户，可以直接把下面这句话复制给 Codex：
 
 ```text
-请从 https://github.com/juew/Skill-Routing-Kit 安装 Skill Routing Kit 插件。插件请安装到 Codex 全局插件目录，通常是 ~/.codex/plugins/skill-routing-kit，不要把插件安装到当前项目目录。只把路由规则启用到当前项目的 AGENTS.md。不要让我手动创建目录；请使用仓库里的安装脚本完成安装，并在安装后验证插件。
+请从 https://github.com/juew/Skill-Routing-Kit 安装 Skill Routing Kit 插件。插件请安装到 Codex 全局插件目录，通常是 ~/.codex/plugins/skill-routing-kit。默认把路由规则启用到 ~/.codex/AGENTS.md，让所有项目都能受益。不要把插件安装到当前项目目录。不要让我手动创建目录；请使用仓库里的安装脚本完成安装，并在安装后验证插件。
 ```
 
 One-command install:
@@ -35,6 +35,12 @@ One-command install:
 ```
 
 This creates the needed directories automatically.
+
+Default scope:
+
+- plugin files: global, `~/.codex/plugins/skill-routing-kit`
+- routing guard: global, `~/.codex/AGENTS.md`
+- project-level routing: optional advanced mode with `--agents /path/to/project/AGENTS.md`
 
 ## Quick Start
 
