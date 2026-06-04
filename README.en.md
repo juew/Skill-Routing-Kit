@@ -129,6 +129,41 @@ To write the routing guard into a specific project:
 
 Restart Codex or reload plugins if the new plugin does not appear immediately.
 
+## Updating
+
+### Recommended: ask Codex to update it
+
+If you are not comfortable with terminals, paste this into Codex:
+
+```text
+Please update the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit. Keep the plugin installed globally at ~/.codex/plugins/skill-routing-kit, keep the routing guard enabled globally in ~/.codex/AGENTS.md, back up the previous local version, refresh the registry, verify the plugin, and do not ask me to manually create or copy directories.
+```
+
+Codex should handle:
+
+- fetching the latest version from GitHub
+- backing up the current local version
+- reinstalling into `~/.codex/plugins/skill-routing-kit`
+- updating the routing guard between `BEGIN/END Skill Routing Kit` in `~/.codex/AGENTS.md`
+- refreshing the registry
+- running plugin validation and basic tests
+
+### One-command update
+
+The installer also works as an updater:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents
+```
+
+Existing versions are backed up to:
+
+```text
+~/.codex/plugins/.backups/
+```
+
+Restart Codex or reload plugins if the updated plugin does not appear immediately.
+
 ### Advanced: manual install
 
 The plugin layout is shown here only for maintainers and advanced troubleshooting:

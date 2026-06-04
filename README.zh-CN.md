@@ -142,6 +142,41 @@ Codex 应该替你完成这些事：
 
 安装后如果 Codex 没有立刻识别新插件，请重启 Codex 或重新加载插件。
 
+## 更新方式
+
+### 推荐：直接让 Codex 更新
+
+如果你不熟悉命令行，直接把下面这句话复制给 Codex：
+
+```text
+请从 https://github.com/juew/Skill-Routing-Kit 更新 Skill Routing Kit 插件。插件继续安装在全局目录 ~/.codex/plugins/skill-routing-kit，路由规则继续全局启用在 ~/.codex/AGENTS.md。请备份旧版本、覆盖安装新版本、刷新 registry、验证插件，不要让我手动创建或复制目录。
+```
+
+Codex 应该替你完成这些事：
+
+- 拉取 GitHub 上的最新版本
+- 备份当前本地版本
+- 覆盖安装到 `~/.codex/plugins/skill-routing-kit`
+- 更新 `~/.codex/AGENTS.md` 中 `BEGIN/END Skill Routing Kit` 之间的路由规则
+- 刷新 registry
+- 运行插件校验和基础测试
+
+### 一行命令更新
+
+安装器也可以直接作为更新器使用：
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents
+```
+
+已有版本会自动备份到：
+
+```text
+~/.codex/plugins/.backups/
+```
+
+更新后如果 Codex 没有立刻识别新版本，请重启 Codex 或重新加载插件。
+
 ### 高级用户：手动安装
 
 插件目录结构如下，供发布者或高级用户排查使用：

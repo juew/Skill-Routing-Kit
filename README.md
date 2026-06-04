@@ -53,6 +53,22 @@ Default scope:
 - routing guard: global, `~/.codex/AGENTS.md`
 - project-level routing: optional advanced mode with `--agents /path/to/project/AGENTS.md`
 
+## Update
+
+For non-technical users, update it the same way: ask Codex to do it.
+
+```text
+Please update the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit. Keep the plugin installed globally at ~/.codex/plugins/skill-routing-kit, keep the routing guard enabled globally in ~/.codex/AGENTS.md, back up the previous local version, refresh the registry, verify the plugin, and do not ask me to manually create or copy directories.
+```
+
+不熟悉命令行的用户，可以直接把下面这句话复制给 Codex：
+
+```text
+请从 https://github.com/juew/Skill-Routing-Kit 更新 Skill Routing Kit 插件。插件继续安装在全局目录 ~/.codex/plugins/skill-routing-kit，路由规则继续全局启用在 ~/.codex/AGENTS.md。请备份旧版本、覆盖安装新版本、刷新 registry、验证插件，不要让我手动创建或复制目录。
+```
+
+Codex can use the same installer for updates; existing installs are backed up automatically.
+
 ## Quick Start
 
 Validate the plugin:
