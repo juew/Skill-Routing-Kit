@@ -109,7 +109,24 @@ def infer_intents(request: str) -> dict[str, set[str]]:
         processes.add("planning")
     if any(token in text for token in ["agent", "agents", "subagent", "多 agent", "多agent"]):
         processes.add("orchestration")
-    if any(token in text for token in ["没命中", "命中", "routing", "router", "路由"]):
+    if any(
+        token in text
+        for token in [
+            "没命中",
+            "未命中",
+            "没有命中",
+            "命中",
+            "触发",
+            "routing",
+            "router",
+            "route",
+            "registry",
+            "did not trigger",
+            "didn't trigger",
+            "not trigger",
+            "路由",
+        ]
+    ):
         processes.add("routing")
 
     for source in ["github", "gmail", "drive", "notion", "slack", "figma", "linear", "canva"]:
@@ -219,11 +236,20 @@ def score_card(
             reasons.append(f"matches inferred artifact target: {artifact}")
 
     for process in intents["processes"]:
+        if process == "routing":
+            continue
         if process in categories:
             score += 45
             reasons.append(f"matches inferred process need: {process}")
 
-    if "routing" in intents["processes"] and "routing" not in categories:
+    is_skill_router = card_id == "skill-router" or name == "skill router" or name == "skill-router"
+    if "routing" in intents["processes"] and is_skill_router:
+        score += 120
+        reasons.append("routing diagnostic request prefers the skill-router capability")
+    elif "routing" in intents["processes"] and "routing" in categories:
+        score += 30 if card_id == "skill-routing-kit" else 10
+        reasons.append("matches inferred process need: routing")
+    elif "routing" in intents["processes"] and "routing" not in categories:
         score -= 30
         reasons.append("routing diagnostic request prefers the skill-router capability")
 
@@ -288,7 +314,11 @@ def route_request(request: str, registry: dict[str, Any], debug: bool) -> dict[s
     scored.sort(key=lambda item: item["score"], reverse=True)
     positive = [item for item in scored if item["score"] > 0]
     primary = positive[0] if positive else None
-    helpers = positive[1:4] if primary else []
+    helpers = [
+        item
+        for item in positive[1:]
+        if item["score"] >= 20 or item.get("do_not_use")
+    ][:3] if primary else []
 
     needs_confirmation = []
     for item in ([primary] if primary else []) + helpers:

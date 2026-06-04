@@ -89,7 +89,7 @@ Diagnostic Plugin
 如果你不熟悉命令行、目录结构或插件安装流程，直接把下面这句话复制给 Codex：
 
 ```text
-请从 https://github.com/juew/Skill-Routing-Kit 安装 Skill Routing Kit 插件。插件请安装到 Codex 全局插件目录，通常是 ~/.codex/plugins/skill-routing-kit。默认把路由规则启用到 ~/.codex/AGENTS.md，让所有项目都能受益。不要把插件安装到当前项目目录。不要让我手动创建目录；请使用仓库里的安装脚本完成安装，并在安装后验证插件。
+请从 https://github.com/juew/Skill-Routing-Kit 安装 Skill Routing Kit 插件。插件源请全局安装到 ~/plugins/skill-routing-kit，注册到 ~/.agents/plugins/marketplace.json，执行 codex plugin add skill-routing-kit@personal，并默认把路由规则启用到 ~/.codex/AGENTS.md，让所有项目都能受益。不要把插件安装到当前项目目录。不要让我手动创建目录；请使用仓库里的安装脚本完成安装，并在安装后验证插件。
 ```
 
 Codex 应该替你完成这些事：
@@ -97,6 +97,8 @@ Codex 应该替你完成这些事：
 - 下载或克隆仓库
 - 创建需要的本地目录
 - 安装插件文件
+- 注册个人 marketplace
+- 通过 `codex plugin add skill-routing-kit@personal` 启用插件
 - 默认写入全局 `~/.codex/AGENTS.md` 路由规则
 - 运行插件校验和基础测试
 
@@ -107,13 +109,19 @@ Codex 应该替你完成这些事：
 如果你愿意在终端里执行一条命令：
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents --codex-add
 ```
 
 默认安装到：
 
 ```text
-~/.codex/plugins/skill-routing-kit
+~/plugins/skill-routing-kit
+```
+
+并注册到：
+
+```text
+~/.agents/plugins/marketplace.json
 ```
 
 并把路由规则写入：
@@ -124,20 +132,21 @@ Codex 应该替你完成这些事：
 
 默认作用域：
 
-- 插件文件：全局，`~/.codex/plugins/skill-routing-kit`
+- 插件源：全局，`~/plugins/skill-routing-kit`
+- marketplace：个人，`~/.agents/plugins/marketplace.json`
 - 路由规则：全局，`~/.codex/AGENTS.md`
 - 项目级路由：高级选项，通过 `--agents /path/to/project/AGENTS.md` 指定
 
 如果你只想安装插件、不自动写入 `AGENTS.md`：
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --codex-add
 ```
 
 如果你想把路由规则写入某个项目的 `AGENTS.md`：
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents --agents "/path/to/project/AGENTS.md"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents --agents "/path/to/project/AGENTS.md" --codex-add
 ```
 
 安装后如果 Codex 没有立刻识别新插件，请重启 Codex 或重新加载插件。
@@ -149,14 +158,16 @@ Codex 应该替你完成这些事：
 如果你不熟悉命令行，直接把下面这句话复制给 Codex：
 
 ```text
-请从 https://github.com/juew/Skill-Routing-Kit 更新 Skill Routing Kit 插件。插件继续安装在全局目录 ~/.codex/plugins/skill-routing-kit，路由规则继续全局启用在 ~/.codex/AGENTS.md。请备份旧版本、覆盖安装新版本、刷新 registry、验证插件，不要让我手动创建或复制目录。
+请从 https://github.com/juew/Skill-Routing-Kit 更新 Skill Routing Kit 插件。插件源继续安装在全局目录 ~/plugins/skill-routing-kit，继续注册到 ~/.agents/plugins/marketplace.json，执行 codex plugin add skill-routing-kit@personal，路由规则继续全局启用在 ~/.codex/AGENTS.md。请备份旧版本、覆盖安装新版本、刷新 registry、验证插件，不要让我手动创建或复制目录。
 ```
 
 Codex 应该替你完成这些事：
 
 - 拉取 GitHub 上的最新版本
 - 备份当前本地版本
-- 覆盖安装到 `~/.codex/plugins/skill-routing-kit`
+- 覆盖安装到 `~/plugins/skill-routing-kit`
+- 更新 `~/.agents/plugins/marketplace.json`
+- 重新执行 `codex plugin add skill-routing-kit@personal`
 - 更新 `~/.codex/AGENTS.md` 中 `BEGIN/END Skill Routing Kit` 之间的路由规则
 - 刷新 registry
 - 运行插件校验和基础测试
@@ -166,13 +177,13 @@ Codex 应该替你完成这些事：
 安装器也可以直接作为更新器使用：
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents --codex-add
 ```
 
 已有版本会自动备份到：
 
 ```text
-~/.codex/plugins/.backups/
+~/plugins/.backups/
 ```
 
 更新后如果 Codex 没有立刻识别新版本，请重启 Codex 或重新加载插件。

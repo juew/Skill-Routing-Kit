@@ -30,26 +30,27 @@ Skill Routing Kit improves hit rate by turning skill/plugin selection into a sma
 For non-technical users, the recommended path is to ask Codex to install it:
 
 ```text
-Please install the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit into the global Codex plugin directory, normally ~/.codex/plugins/skill-routing-kit. Enable the routing guard globally in ~/.codex/AGENTS.md by default, so all projects can benefit. Do not install the plugin into the current project. Do not ask me to create directories manually; use the repository installer and verify the plugin after installation.
+Please install the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit. Install the plugin source globally at ~/plugins/skill-routing-kit, register it in ~/.agents/plugins/marketplace.json, run codex plugin add skill-routing-kit@personal, and enable the routing guard globally in ~/.codex/AGENTS.md. Do not install it into the current project. Do not ask me to create directories manually; use the repository installer and verify the plugin after installation.
 ```
 
 不熟悉命令行的用户，可以直接把下面这句话复制给 Codex：
 
 ```text
-请从 https://github.com/juew/Skill-Routing-Kit 安装 Skill Routing Kit 插件。插件请安装到 Codex 全局插件目录，通常是 ~/.codex/plugins/skill-routing-kit。默认把路由规则启用到 ~/.codex/AGENTS.md，让所有项目都能受益。不要把插件安装到当前项目目录。不要让我手动创建目录；请使用仓库里的安装脚本完成安装，并在安装后验证插件。
+请从 https://github.com/juew/Skill-Routing-Kit 安装 Skill Routing Kit 插件。插件源请全局安装到 ~/plugins/skill-routing-kit，注册到 ~/.agents/plugins/marketplace.json，执行 codex plugin add skill-routing-kit@personal，并默认把路由规则启用到 ~/.codex/AGENTS.md。不要把插件安装到当前项目目录。不要让我手动创建目录；请使用仓库里的安装脚本完成安装，并在安装后验证插件。
 ```
 
 One-command install:
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents --codex-add
 ```
 
 This creates the needed directories automatically.
 
 Default scope:
 
-- plugin files: global, `~/.codex/plugins/skill-routing-kit`
+- plugin source: global, `~/plugins/skill-routing-kit`
+- marketplace entry: `~/.agents/plugins/marketplace.json`
 - routing guard: global, `~/.codex/AGENTS.md`
 - project-level routing: optional advanced mode with `--agents /path/to/project/AGENTS.md`
 
@@ -58,13 +59,13 @@ Default scope:
 For non-technical users, update it the same way: ask Codex to do it.
 
 ```text
-Please update the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit. Keep the plugin installed globally at ~/.codex/plugins/skill-routing-kit, keep the routing guard enabled globally in ~/.codex/AGENTS.md, back up the previous local version, refresh the registry, verify the plugin, and do not ask me to manually create or copy directories.
+Please update the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit. Keep the plugin source globally at ~/plugins/skill-routing-kit, keep it registered in ~/.agents/plugins/marketplace.json, run codex plugin add skill-routing-kit@personal, keep the routing guard enabled globally in ~/.codex/AGENTS.md, refresh the registry, verify the plugin, and do not ask me to manually create or copy directories.
 ```
 
 不熟悉命令行的用户，可以直接把下面这句话复制给 Codex：
 
 ```text
-请从 https://github.com/juew/Skill-Routing-Kit 更新 Skill Routing Kit 插件。插件继续安装在全局目录 ~/.codex/plugins/skill-routing-kit，路由规则继续全局启用在 ~/.codex/AGENTS.md。请备份旧版本、覆盖安装新版本、刷新 registry、验证插件，不要让我手动创建或复制目录。
+请从 https://github.com/juew/Skill-Routing-Kit 更新 Skill Routing Kit 插件。插件源继续安装在全局目录 ~/plugins/skill-routing-kit，继续注册在 ~/.agents/plugins/marketplace.json，执行 codex plugin add skill-routing-kit@personal，路由规则继续全局启用在 ~/.codex/AGENTS.md。请备份旧版本、刷新 registry、验证插件，不要让我手动创建或复制目录。
 ```
 
 Codex can use the same installer for updates; existing installs are backed up automatically.

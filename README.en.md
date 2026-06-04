@@ -76,7 +76,7 @@ These pieces map to the implementation:
 If you are not comfortable with terminals, directory structures, or plugin setup, paste this into Codex:
 
 ```text
-Please install the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit into the global Codex plugin directory, normally ~/.codex/plugins/skill-routing-kit. Enable the routing guard globally in ~/.codex/AGENTS.md by default, so all projects can benefit. Do not install the plugin into the current project. Do not ask me to create directories manually; use the repository installer and verify the plugin after installation.
+Please install the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit. Install the plugin source globally at ~/plugins/skill-routing-kit, register it in ~/.agents/plugins/marketplace.json, run codex plugin add skill-routing-kit@personal, and enable the routing guard globally in ~/.codex/AGENTS.md by default, so all projects can benefit. Do not install it into the current project. Do not ask me to create directories manually; use the repository installer and verify the plugin after installation.
 ```
 
 Codex should handle:
@@ -84,6 +84,8 @@ Codex should handle:
 - downloading or cloning the repository
 - creating local directories
 - installing plugin files
+- registering the personal marketplace entry
+- enabling the plugin with `codex plugin add skill-routing-kit@personal`
 - adding the global `~/.codex/AGENTS.md` routing guard by default
 - running basic validation
 
@@ -94,13 +96,19 @@ You should not need to manually create `.codex-plugin`, `skills`, or `registry` 
 If you are comfortable running one terminal command:
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents --codex-add
 ```
 
 By default, this installs the plugin to:
 
 ```text
-~/.codex/plugins/skill-routing-kit
+~/plugins/skill-routing-kit
+```
+
+registers it in:
+
+```text
+~/.agents/plugins/marketplace.json
 ```
 
 and writes the routing guard to:
@@ -111,20 +119,21 @@ and writes the routing guard to:
 
 Default scope:
 
-- plugin files: global, `~/.codex/plugins/skill-routing-kit`
+- plugin source: global, `~/plugins/skill-routing-kit`
+- marketplace: personal, `~/.agents/plugins/marketplace.json`
 - routing guard: global, `~/.codex/AGENTS.md`
 - project-level routing: optional advanced mode with `--agents /path/to/project/AGENTS.md`
 
 To install only the plugin without writing `AGENTS.md`:
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --codex-add
 ```
 
 To write the routing guard into a specific project:
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents --agents "/path/to/project/AGENTS.md"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents --agents "/path/to/project/AGENTS.md" --codex-add
 ```
 
 Restart Codex or reload plugins if the new plugin does not appear immediately.
@@ -136,14 +145,16 @@ Restart Codex or reload plugins if the new plugin does not appear immediately.
 If you are not comfortable with terminals, paste this into Codex:
 
 ```text
-Please update the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit. Keep the plugin installed globally at ~/.codex/plugins/skill-routing-kit, keep the routing guard enabled globally in ~/.codex/AGENTS.md, back up the previous local version, refresh the registry, verify the plugin, and do not ask me to manually create or copy directories.
+Please update the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit. Keep the plugin source globally at ~/plugins/skill-routing-kit, keep it registered in ~/.agents/plugins/marketplace.json, run codex plugin add skill-routing-kit@personal, keep the routing guard enabled globally in ~/.codex/AGENTS.md, refresh the registry, verify the plugin, and do not ask me to manually create or copy directories.
 ```
 
 Codex should handle:
 
 - fetching the latest version from GitHub
 - backing up the current local version
-- reinstalling into `~/.codex/plugins/skill-routing-kit`
+- reinstalling into `~/plugins/skill-routing-kit`
+- updating `~/.agents/plugins/marketplace.json`
+- rerunning `codex plugin add skill-routing-kit@personal`
 - updating the routing guard between `BEGIN/END Skill Routing Kit` in `~/.codex/AGENTS.md`
 - refreshing the registry
 - running plugin validation and basic tests
@@ -153,13 +164,13 @@ Codex should handle:
 The installer also works as an updater:
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents --codex-add
 ```
 
 Existing versions are backed up to:
 
 ```text
-~/.codex/plugins/.backups/
+~/plugins/.backups/
 ```
 
 Restart Codex or reload plugins if the updated plugin does not appear immediately.

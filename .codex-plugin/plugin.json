@@ -1,10 +1,11 @@
 {
   "name": "skill-routing-kit",
-  "version": "0.1.0",
+  "version": "0.1.0+codex.20260604030535",
   "description": "Local-first skill and plugin routing guard, registry, and diagnostics for Codex.",
   "author": {
     "name": "Zhonghao"
   },
+  "skills": "./skills/",
   "interface": {
     "displayName": "Skill Routing Kit",
     "shortDescription": "Local-first skill routing guard and diagnostics.",

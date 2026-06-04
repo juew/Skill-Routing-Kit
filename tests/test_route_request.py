@@ -13,6 +13,10 @@ REGISTRY = ROOT / "registry" / "core-capabilities.json"
 INSTALL = ROOT / "scripts" / "install.py"
 
 
+def load_json(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def run_route(request: str, *args: str) -> str:
     result = subprocess.run(
         [sys.executable, str(ROUTE), "--registry", str(REGISTRY), *args, request],
@@ -118,6 +122,70 @@ class RouteRequestTests(unittest.TestCase):
         self.assertIn("schema_version", result.stdout)
         self.assertIn("source path", result.stdout)
 
+    def test_generated_like_registry_routes_diagnostics_to_skill_router(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            registry = Path(tmp) / "registry.json"
+            registry.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "1.0",
+                        "generated_at": "2026-06-04T00:00:00+00:00",
+                        "capabilities": [
+                            {
+                                "id": "pdf",
+                                "name": "pdf",
+                                "kind": "skill",
+                                "categories": ["artifact", "local", "pdf", "skill"],
+                                "use_when": "Use when tasks involve reading, creating, or reviewing PDF files.",
+                                "provenance": {
+                                    "source_type": "core_static",
+                                    "path": "registry/core-capabilities.json",
+                                },
+                            },
+                            {
+                                "id": "skill-routing-kit",
+                                "name": "skill-routing-kit",
+                                "kind": "plugin",
+                                "categories": ["local", "plugin", "process", "routing"],
+                                "use_when": "Local-first skill routing guard and diagnostics.",
+                                "provenance": {
+                                    "source_type": "core_static",
+                                    "path": "registry/core-capabilities.json",
+                                },
+                            },
+                            {
+                                "id": "skill-router",
+                                "name": "skill-router",
+                                "kind": "skill",
+                                "categories": ["local", "skill"],
+                                "use_when": "Use when the user asks to diagnose skill/plugin routing.",
+                                "provenance": {
+                                    "source_type": "core_static",
+                                    "path": "registry/core-capabilities.json",
+                                },
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROUTE),
+                    "--registry",
+                    str(registry),
+                    "为什么 pdf skill 没有命中这个请求",
+                ],
+                cwd=str(ROOT),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            )
+        first_lines = "\n".join(result.stdout.splitlines()[:3])
+        self.assertIn("skill-router", first_lines)
+
     def test_build_registry_dry_run_and_refresh_custom_output(self):
         with tempfile.TemporaryDirectory() as tmp:
             output = Path(tmp) / "custom-registry.json"
@@ -158,7 +226,8 @@ class RouteRequestTests(unittest.TestCase):
 
     def test_installer_creates_target_and_agents_snippet(self):
         with tempfile.TemporaryDirectory() as tmp:
-            target = Path(tmp) / "codex" / "plugins" / "skill-routing-kit"
+            target = Path(tmp) / "plugins" / "skill-routing-kit"
+            marketplace = Path(tmp) / ".agents" / "plugins" / "marketplace.json"
             agents = Path(tmp) / "AGENTS.md"
 
             subprocess.run(
@@ -170,6 +239,8 @@ class RouteRequestTests(unittest.TestCase):
                     "--install-agents",
                     "--agents",
                     str(agents),
+                    "--marketplace",
+                    str(marketplace),
                 ],
                 cwd=str(ROOT),
                 text=True,
@@ -182,6 +253,14 @@ class RouteRequestTests(unittest.TestCase):
             self.assertTrue((target / "skills" / "skill-router" / "SKILL.md").exists())
             self.assertFalse((target / ".git").exists())
             self.assertIn("BEGIN Skill Routing Kit", agents.read_text(encoding="utf-8"))
+            marketplace_payload = load_json(marketplace)
+            entries = [
+                entry
+                for entry in marketplace_payload["plugins"]
+                if entry.get("name") == "skill-routing-kit"
+            ]
+            self.assertEqual(len(entries), 1)
+            self.assertEqual(entries[0]["source"]["path"], "./plugins/skill-routing-kit")
 
             subprocess.run(
                 [
@@ -192,6 +271,8 @@ class RouteRequestTests(unittest.TestCase):
                     "--install-agents",
                     "--agents",
                     str(agents),
+                    "--marketplace",
+                    str(marketplace),
                 ],
                 cwd=str(ROOT),
                 text=True,
@@ -202,6 +283,17 @@ class RouteRequestTests(unittest.TestCase):
 
             agents_text = agents.read_text(encoding="utf-8")
             self.assertEqual(agents_text.count("BEGIN Skill Routing Kit"), 1)
+            marketplace_payload = load_json(marketplace)
+            entries = [
+                entry
+                for entry in marketplace_payload["plugins"]
+                if entry.get("name") == "skill-routing-kit"
+            ]
+            self.assertEqual(len(entries), 1)
+
+    def test_manifest_exposes_skills_directory(self):
+        manifest = load_json(ROOT / ".codex-plugin" / "plugin.json")
+        self.assertEqual(manifest.get("skills"), "./skills/")
 
     def test_installer_rejects_target_inside_repository(self):
         target = ROOT / "tmp-install-target"
