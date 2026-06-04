@@ -53,7 +53,7 @@ The routing guard is the part that improves daily hit rate. The registry and dia
 If you are not comfortable with terminals, directory structures, or plugin setup, paste this into Codex:
 
 ```text
-Please install the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit and enable the routing guard in the current project's AGENTS.md. Do not ask me to create directories manually; use the repository installer and verify the plugin after installation.
+Please install the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit into the global Codex plugin directory, normally ~/.codex/plugins/skill-routing-kit. Do not install the plugin into the current project. Only enable the routing guard in the current project's AGENTS.md. Do not ask me to create directories manually; use the repository installer and verify the plugin after installation.
 ```
 
 Codex should handle:

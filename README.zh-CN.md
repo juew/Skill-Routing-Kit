@@ -68,7 +68,7 @@ Diagnostic Plugin
 如果你不熟悉命令行、目录结构或插件安装流程，直接把下面这句话复制给 Codex：
 
 ```text
-请从 https://github.com/juew/Skill-Routing-Kit 安装 Skill Routing Kit 插件，并把路由规则启用到当前项目的 AGENTS.md。不要让我手动创建目录；请使用仓库里的安装脚本完成安装，并在安装后验证插件。
+请从 https://github.com/juew/Skill-Routing-Kit 安装 Skill Routing Kit 插件。插件请安装到 Codex 全局插件目录，通常是 ~/.codex/plugins/skill-routing-kit，不要把插件安装到当前项目目录。只把路由规则启用到当前项目的 AGENTS.md。不要让我手动创建目录；请使用仓库里的安装脚本完成安装，并在安装后验证插件。
 ```
 
 Codex 应该替你完成这些事：
