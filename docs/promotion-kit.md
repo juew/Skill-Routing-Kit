@@ -2,8 +2,6 @@
 
 Use these short descriptions when sharing Skill Routing Kit.
 
-For copy-ready channel posts, see [Launch Pack](launch/README.md).
-
 ## One-Liner
 
 Skill Routing Kit makes Codex pick the right skill or plugin more often.
