@@ -1,108 +1,197 @@
-# Skill Routing Kit
+<p align="center">
+  <img src="assets/logo.png" alt="Skill Routing Kit logo" width="160" />
+</p>
 
-[中文说明](README.zh-CN.md) | [English Documentation](README.en.md)
+<h1 align="center">Skill Routing Kit</h1>
 
-Skill Routing Kit is a Codex plugin for improving skill and plugin hit rate. It adds a lightweight, local-first routing layer that helps Codex decide when to use a skill, when not to use it, and how to diagnose missed routing.
+<p align="center">
+  Make Codex pick the right skill or plugin more often.
+</p>
 
-Skill Routing Kit 是一个用于提升 Codex skill/plugin 命中率的插件。它通过本地优先的 routing registry、静默路由规则、诊断脚本和可维护的索引机制，让 Codex 更容易在合适的时机调用合适的能力。
+<p align="center">
+  <a href="README.zh-CN.md">中文说明</a>
+  ·
+  <a href="README.en.md">Full English docs</a>
+  ·
+  <a href="docs/demo.md">Demo</a>
+  ·
+  <a href="docs/release-v0.1.0.md">Release notes</a>
+</p>
 
-## What It Provides
+<p align="center">
+  <img alt="Codex plugin" src="https://img.shields.io/badge/Codex-plugin-22D3EE">
+  <img alt="Local first" src="https://img.shields.io/badge/local--first-no%20network%20by%20default-10B981">
+  <img alt="CI" src="https://github.com/juew/Skill-Routing-Kit/actions/workflows/ci.yml/badge.svg">
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-111827">
+</p>
 
-- A `skill-router` skill for routing diagnosis and registry maintenance.
-- A capability registry with use cases, negative examples, categories, and provenance.
-- Local scripts for request routing, registry scanning, freshness checks, and diagnostics.
-- An `AGENTS.md` snippet that can make routing a default silent guardrail.
-- Bilingual documentation for installation, daily use, updates, and removal.
+## Why This Exists
 
-## Routing Methodology
+Codex can have dozens of skills and plugins installed, but the correct one does not always trigger.
 
-Skill Routing Kit improves hit rate by turning skill/plugin selection into a small retrieval-and-ranking loop:
+That creates a quiet productivity tax:
 
-- describe **when to use** each capability;
-- classify capabilities into layered routing categories such as `process/source/artifact/domain/risk`;
-- describe **when not to use** each capability with negative examples;
-- recall broad candidates first, then rerank by final artifact, source, task action, and risk.
+- a PDF input gets mistaken for the final artifact;
+- a routing/debugging question gets handled by the wrong domain skill;
+- connector plugins are considered even when the user's work is local;
+- new skills are installed, but nobody remembers when to use them.
 
-中文完整说明见 [README.zh-CN.md](README.zh-CN.md) 的“设计原理与实现逻辑”。
+Skill Routing Kit adds a small local-first routing layer for Codex. It helps Codex answer:
 
-## Install
+```text
+What kind of task is this?
+Where is the source of truth?
+What is the final artifact?
+Which skill should be primary?
+Which plugin is only a helper?
+When should a tempting skill not be used?
+```
 
-For non-technical users, the recommended path is to ask Codex to install it:
+## What You Get
+
+- `skill-router`: a Codex skill for diagnosing skill/plugin routing decisions.
+- Local registry: a JSON capability index with categories, use cases, negative examples, and provenance.
+- Routing guard: an `AGENTS.md` snippet that makes routing a quiet default behavior.
+- Diagnostic scripts: route a request, refresh the registry, and check stale or broken entries.
+- Local-first safety: no background scan, no telemetry, no connector content reads, no network by default.
+
+## 30-Second Install
+
+If you use Codex, ask it to install the plugin for you:
 
 ```text
 Please install the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit. Install the plugin source globally at ~/plugins/skill-routing-kit, register it in ~/.agents/plugins/marketplace.json, run codex plugin add skill-routing-kit@personal, and enable the routing guard globally in ~/.codex/AGENTS.md. Do not install it into the current project. Do not ask me to create directories manually; use the repository installer and verify the plugin after installation.
 ```
 
-不熟悉命令行的用户，可以直接把下面这句话复制给 Codex：
-
-```text
-请从 https://github.com/juew/Skill-Routing-Kit 安装 Skill Routing Kit 插件。插件源请全局安装到 ~/plugins/skill-routing-kit，注册到 ~/.agents/plugins/marketplace.json，执行 codex plugin add skill-routing-kit@personal，并默认把路由规则启用到 ~/.codex/AGENTS.md。不要把插件安装到当前项目目录。不要让我手动创建目录；请使用仓库里的安装脚本完成安装，并在安装后验证插件。
-```
-
-One-command install:
+Or run one command:
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/juew/Skill-Routing-Kit/main/scripts/install.sh)" -- --install-agents --codex-add
 ```
 
-This creates the needed directories automatically.
+The installer creates directories, updates your personal Codex marketplace, enables the plugin, and backs up older local copies.
 
-Default scope:
+## Before And After
 
-- plugin source: global, `~/plugins/skill-routing-kit`
-- marketplace entry: `~/.agents/plugins/marketplace.json`
-- routing guard: global, `~/.codex/AGENTS.md`
-- project-level routing: optional advanced mode with `--agents /path/to/project/AGENTS.md`
-
-## Update
-
-For non-technical users, update it the same way: ask Codex to do it.
-
-```text
-Please update the Skill Routing Kit plugin from https://github.com/juew/Skill-Routing-Kit. Keep the plugin source globally at ~/plugins/skill-routing-kit, keep it registered in ~/.agents/plugins/marketplace.json, run codex plugin add skill-routing-kit@personal, keep the routing guard enabled globally in ~/.codex/AGENTS.md, refresh the registry, verify the plugin, and do not ask me to manually create or copy directories.
-```
-
-不熟悉命令行的用户，可以直接把下面这句话复制给 Codex：
-
-```text
-请从 https://github.com/juew/Skill-Routing-Kit 更新 Skill Routing Kit 插件。插件源继续安装在全局目录 ~/plugins/skill-routing-kit，继续注册在 ~/.agents/plugins/marketplace.json，执行 codex plugin add skill-routing-kit@personal，路由规则继续全局启用在 ~/.codex/AGENTS.md。请备份旧版本、刷新 registry、验证插件，不要让我手动创建或复制目录。
-```
-
-Codex can use the same installer for updates; existing installs are backed up automatically.
-
-## Quick Start
-
-Validate the plugin:
+### Routing Diagnostic
 
 ```bash
+python3 scripts/route_request.py "为什么 pdf skill 没有命中这个请求"
+```
+
+Expected result:
+
+```text
+Recommended skill/plugin:
+- Skill Router (skill-router)
+
+Helper skills/plugins:
+- PDF (pdf)
+
+Why:
+- routing diagnostic request prefers the skill-router capability
+- local-first preference
+```
+
+### Final Artifact Routing
+
+```bash
+python3 scripts/route_request.py "把这个 PDF 整理成一份 PPT"
+```
+
+Expected result:
+
+```text
+Recommended skill/plugin:
+- Presentations (presentations)
+
+Helper skills/plugins:
+- PDF (pdf)
+```
+
+The final artifact is the presentation. The PDF skill is useful context, not the primary route.
+
+More examples: [docs/demo.md](docs/demo.md)
+
+## How It Works
+
+Skill Routing Kit turns skill/plugin selection into a lightweight recall-and-rerank loop.
+
+```mermaid
+flowchart LR
+  A["User request"] --> B["Routing guard"]
+  B --> C["Classify task, source, artifact, process"]
+  C --> D["Recall candidates from registry"]
+  D --> E["Rerank by final artifact, source, action, risk"]
+  E --> F["Use primary skill/plugin"]
+  E --> G["Keep helper skills contextual"]
+```
+
+The methodology is simple:
+
+- describe **when to use** each capability;
+- classify capabilities into layered routing categories such as `process`, `source`, `artifact`, `domain`, and `risk`;
+- describe **when not to use** each capability with negative examples;
+- recall broad candidates first, then rerank by final artifact, source, task action, and permission risk.
+
+## Safety Model
+
+This project is intentionally conservative.
+
+- It reads local `SKILL.md`, `plugin.json`, and registry metadata.
+- It does not read Gmail, Slack, Notion, Drive, or other connector content.
+- It does not check connector authorization.
+- It does not install hooks, telemetry, daemons, or background scanners.
+- It can be removed by deleting the `AGENTS.md` block and uninstalling the plugin.
+
+## Common Commands
+
+```bash
+# Validate the plugin
 python3 /Users/zhonghao/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
-```
 
-Run the routing tests:
-
-```bash
+# Run tests
 python3 -B -m unittest discover -s tests
-```
 
-Try a routing diagnosis:
-
-```bash
+# Route one request
 python3 scripts/route_request.py "帮我把这个 PDF 做成 PPT 并保留版式"
-```
 
-Build a local generated registry:
+# Check registry health
+python3 scripts/route_request.py --check-registry
 
-```bash
-python3 scripts/build_registry.py --dry-run
+# Refresh generated registry
 python3 scripts/build_registry.py --yes
 ```
 
+## Who Should Star This
+
+Star this repo if you are:
+
+- building Codex skills or plugins;
+- using many AI agent capabilities and seeing missed triggers;
+- designing local-first agent workflows;
+- maintaining a team skill library;
+- interested in explainable routing for AI tools.
+
+## Roadmap
+
+- Registry diff after skill/plugin install or removal.
+- Better negative-example authoring tools.
+- Optional embedding-based reranker.
+- Route quality evaluation suite.
+- UI screenshots and short demo GIF.
+- More connector-aware but still local-first policy cards.
+
 ## Documentation
 
-Use the Chinese README if you want the full design rationale and operating model in Chinese:
+- [Chinese README](README.zh-CN.md)
+- [Full English documentation](README.en.md)
+- [Demo scenarios](docs/demo.md)
+- [Release notes](docs/release-v0.1.0.md)
+- [Promotion kit](docs/promotion-kit.md)
+- [Contributing guide](CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
 
-- [README.zh-CN.md](README.zh-CN.md)
+## License
 
-Use the English README for the same installation and maintenance guide in English:
-
-- [README.en.md](README.en.md)
+MIT

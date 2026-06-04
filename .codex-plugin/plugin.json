@@ -1,10 +1,20 @@
 {
   "name": "skill-routing-kit",
-  "version": "0.1.0+codex.20260604031504",
+  "version": "0.1.0+codex.20260604032338",
   "description": "Local-first skill and plugin routing guard, registry, and diagnostics for Codex.",
   "author": {
     "name": "Zhonghao"
   },
+  "repository": "https://github.com/juew/Skill-Routing-Kit",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "codex-plugin",
+    "skill-routing",
+    "ai-agents",
+    "local-first",
+    "developer-tools"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Skill Routing Kit",

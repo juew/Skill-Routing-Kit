@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run unit tests
+        run: python3 -B -m unittest discover -s tests
+
+      - name: Dry-run registry builder
+        run: python3 scripts/build_registry.py --dry-run
+
+      - name: Check core registry
+        run: python3 scripts/route_request.py --registry registry/core-capabilities.json --check-registry
