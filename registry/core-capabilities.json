@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-06-15T16:19:11+08:00",
+  "generated_at": "2026-06-04T00:00:00+08:00",
   "description": "Static core routing capabilities for Skill Routing Kit v1.",
   "capabilities": [
     {
@@ -106,17 +106,12 @@
       "name": "Subagent Orchestration",
       "kind": "skill",
       "categories": ["process", "orchestration", "multi_agent", "long_running"],
-      "use_when": "Use this skill for long-running or multi-agent Codex work where a main controller must coordinate bounded subagents, task slices, acceptance gates, context-budget handoffs, tool-use policy, artifact consistency, evidence verification, safe resumption, strict output-quality control, or subagent lifecycle cleanup after pauses, blocking, cancellation, or completion. Also consider it for concrete deliverables such as 报告, PPT, Excel, 网页, 图片, 代码, 测试证据, or release packages that require 主控, 验收标准, 验证节点, 产物一致性, or cross-artifact quality control after superpowers:using-superpowers performs the first process-skill decision.",
+      "use_when": "Use for long-running, multi-agent, handoff-sensitive, tool-policy-sensitive, or artifact-consistency-heavy work.",
       "avoid_when": ["Do not use for ordinary single-agent tasks or simple local edits."],
       "inputs": ["objective", "task_slices"],
       "outputs": ["delegation_contracts", "acceptance_gates", "handoffs"],
       "requires": ["subagents"],
-      "examples": [
-        "Arrange multiple agents to review this plan.",
-        "主控负责制定验收标准并严格控制产品输出质量。",
-        "生成报告、PPT、Excel、网页、图片等交付物时，如果需要验收门槛和产物一致性控制，由 Superpowers 判断是否进入 Subagent Orchestration。",
-        "实现整个项目并验证所有验证节点，需要任务拆解、验收门槛和交接。"
-      ],
+      "examples": ["Arrange multiple agents to review this plan."],
       "provenance": {"source_type": "core_static", "path": "registry/core-capabilities.json"},
       "updated_at": "2026-06-04T00:00:00+08:00"
     },

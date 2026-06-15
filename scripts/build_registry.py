@@ -96,8 +96,6 @@ def categories_for(name: str, description: str, kind: str) -> list[str]:
     for token, values in mapping.items():
         if token in haystack:
             categories.update(values)
-    if "find and use skills" in haystack or "skill-discovery" in haystack:
-        categories.update(["process", "routing", "skill_discovery"])
     if "external_connector" not in categories:
         categories.add("local")
     return sorted(categories)

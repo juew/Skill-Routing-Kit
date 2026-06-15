@@ -33,9 +33,7 @@ class RouteRequestTests(unittest.TestCase):
     def test_pdf_to_ppt_routes_to_presentations(self):
         output = run_route("把这个 PDF 整理成一份 PPT")
         first_lines = "\n".join(output.splitlines()[:3])
-        self.assertIn("Superpowers: Using Superpowers", first_lines)
-        self.assertIn("Subagent Orchestration", output)
-        self.assertIn("Presentations", output)
+        self.assertIn("Presentations", first_lines)
         self.assertIn("PDF", output)
 
     def test_frontend_bug_routes_to_debugging(self):
@@ -53,30 +51,6 @@ class RouteRequestTests(unittest.TestCase):
         output = run_route("为什么 pdf skill 没有命中这个请求")
         first_lines = "\n".join(output.splitlines()[:3])
         self.assertIn("Skill Router", first_lines)
-
-    def test_long_project_with_acceptance_gates_routes_to_subagent_orchestration(self):
-        output = run_route(
-            "请根据数据库驱动包和数据库信息，使用 Using Superpowers 开始实现整个项目，"
-            "项目中预设的参数和测试 sql 一定要能够执行，并且能够验证所有验证节点，"
-            "主控需要制定验收标准并严格控制产品输出质量"
-        )
-        first_lines = "\n".join(output.splitlines()[:3])
-        self.assertIn("Superpowers: Using Superpowers", first_lines)
-        self.assertIn("Subagent Orchestration", output)
-
-    def test_deliverable_web_app_routes_to_subagent_orchestration(self):
-        output = run_route("帮我创建一个客户 review 看板网页")
-        first_lines = "\n".join(output.splitlines()[:3])
-        self.assertIn("Superpowers: Using Superpowers", first_lines)
-        self.assertIn("Subagent Orchestration", output)
-        self.assertIn("Frontend App Builder", output)
-
-    def test_deliverable_docx_routes_to_subagent_orchestration(self):
-        output = run_route("帮我写 Word 版项目报告并渲染检查")
-        first_lines = "\n".join(output.splitlines()[:3])
-        self.assertIn("Superpowers: Using Superpowers", first_lines)
-        self.assertIn("Subagent Orchestration", output)
-        self.assertIn("Documents", output)
 
     def test_registry_check(self):
         result = subprocess.run(
@@ -155,7 +129,7 @@ class RouteRequestTests(unittest.TestCase):
                 json.dumps(
                     {
                         "schema_version": "1.0",
-                        "generated_at": "2026-06-15T00:00:00+00:00",
+                        "generated_at": "2026-06-04T00:00:00+00:00",
                         "capabilities": [
                             {
                                 "id": "pdf",
