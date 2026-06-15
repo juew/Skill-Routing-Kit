@@ -9,15 +9,15 @@
     },
     {
       "request": "把这个 PDF 整理成一份 PPT",
-      "expected_primary": "presentations",
-      "expected_helpers": ["pdf"],
-      "expected_notes": ["presentation is final artifact"]
+      "expected_primary": "superpowers-using-superpowers",
+      "expected_helpers": ["subagent-orchestration", "presentations", "pdf"],
+      "expected_notes": ["SRK routes deliverables through Superpowers first", "presentation is final artifact"]
     },
     {
       "request": "分析这个 CSV 并生成一个 Excel 报告",
-      "expected_primary": "spreadsheets",
-      "expected_helpers": [],
-      "expected_notes": ["local spreadsheet artifact"]
+      "expected_primary": "superpowers-using-superpowers",
+      "expected_helpers": ["subagent-orchestration", "spreadsheets"],
+      "expected_notes": ["SRK routes deliverables through Superpowers first", "local spreadsheet artifact"]
     },
     {
       "request": "根据 Linear issue 实现这个功能",
@@ -35,15 +35,21 @@
     },
     {
       "request": "帮我创建一个客户 review 看板网页",
-      "expected_primary": "frontend-app-builder",
-      "expected_helpers": [],
-      "expected_notes": ["web app final artifact"]
+      "expected_primary": "superpowers-using-superpowers",
+      "expected_helpers": ["subagent-orchestration", "frontend-app-builder"],
+      "expected_notes": ["SRK routes deliverables through Superpowers first", "web app final artifact"]
     },
     {
       "request": "帮我安排三个 agent 分别审核这个方案",
       "expected_primary": "subagent-orchestration",
       "expected_helpers": [],
       "expected_notes": ["multi-agent explicit"]
+    },
+    {
+      "request": "请根据数据库驱动包和数据库信息，使用 Using Superpowers 开始实现整个项目，项目中预设的参数和测试 sql 一定要能够执行，并且能够验证所有验证节点，主控需要制定验收标准并严格控制产品输出质量",
+      "expected_primary": "superpowers-using-superpowers",
+      "expected_helpers": ["subagent-orchestration"],
+      "expected_notes": ["Superpowers first", "implicit orchestration through main-controller acceptance gates"]
     },
     {
       "request": "为什么 pdf skill 没有命中这个请求",
@@ -66,15 +72,15 @@
     },
     {
       "request": "生成一个产品发布海报图片",
-      "expected_primary": "imagegen",
-      "expected_helpers": [],
-      "expected_notes": ["bitmap image output"]
+      "expected_primary": "superpowers-using-superpowers",
+      "expected_helpers": ["subagent-orchestration", "imagegen"],
+      "expected_notes": ["SRK routes deliverables through Superpowers first", "bitmap image output"]
     },
     {
       "request": "帮我写 Word 版项目报告并渲染检查",
-      "expected_primary": "documents",
-      "expected_helpers": [],
-      "expected_notes": ["docx final artifact"]
+      "expected_primary": "superpowers-using-superpowers",
+      "expected_helpers": ["subagent-orchestration", "documents"],
+      "expected_notes": ["SRK routes deliverables through Superpowers first", "docx final artifact"]
     }
   ]
 }

@@ -25,6 +25,7 @@ STALE_DAYS = 7
 
 
 TOKEN_RE = re.compile(r"[\w.+#/-]+", re.UNICODE)
+CJK_RE = re.compile(r"[\u4e00-\u9fff]{2,}", re.UNICODE)
 
 
 def now_utc() -> datetime:
@@ -46,6 +47,11 @@ def tokenize(text: str) -> set[str]:
     text = text.lower()
     raw = set(TOKEN_RE.findall(text))
     expanded = set(raw)
+    for match in CJK_RE.findall(text):
+        max_width = min(6, len(match))
+        for width in range(2, max_width + 1):
+            for start in range(0, len(match) - width + 1):
+                expanded.add(match[start : start + width])
     aliases = {
         "ppt": "presentation",
         "pptx": "presentation",
@@ -107,8 +113,60 @@ def infer_intents(request: str) -> dict[str, set[str]]:
         processes.add("review")
     if any(token in text for token in ["plan", "计划", "方案"]):
         processes.add("planning")
-    if any(token in text for token in ["agent", "agents", "subagent", "多 agent", "多agent"]):
+    deliverable_requested = bool(artifacts) and any(
+        token in text
+        for token in [
+            "创建",
+            "生成",
+            "新建",
+            "写",
+            "撰写",
+            "整理成",
+            "做成",
+            "搭建",
+            "实现",
+            "完成",
+            "产出",
+            "输出",
+            "交付",
+            "报告",
+            "看板",
+            "网页",
+            "海报",
+            "ppt",
+            "pptx",
+            "word",
+            "docx",
+            "excel",
+            "xlsx",
+            "create",
+            "generate",
+            "build",
+            "write",
+            "deliver",
+            "produce",
+        ]
+    )
+    orchestration_explicit = any(
+        token in text
+        for token in [
+            "agent",
+            "agents",
+            "subagent",
+            "multi-agent",
+            "multi agent",
+            "子agent",
+            "子 agent",
+            "多 agent",
+            "多agent",
+            "多代理",
+            "子代理",
+        ]
+    )
+    if orchestration_explicit:
         processes.add("orchestration")
+    if deliverable_requested or "using superpowers" in text or "superpowers" in text:
+        processes.add("skill_discovery")
     if any(
         token in text
         for token in [
@@ -239,8 +297,17 @@ def score_card(
         if process == "routing":
             continue
         if process in categories:
-            score += 45
+            if process == "skill_discovery":
+                score += 90 if card_id in {"superpowers-using-superpowers", "using-superpowers"} else 10
+            elif process == "orchestration":
+                score += 70
+            else:
+                score += 45
             reasons.append(f"matches inferred process need: {process}")
+
+    if "skill_discovery" in intents["processes"] and "orchestration" in categories and overlap:
+        score += 45
+        reasons.append("skill discovery request surfaces matching orchestration candidate")
 
     is_skill_router = card_id == "skill-router" or name == "skill router" or name == "skill-router"
     if "routing" in intents["processes"] and is_skill_router:
