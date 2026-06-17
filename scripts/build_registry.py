@@ -92,6 +92,7 @@ def categories_for(name: str, description: str, kind: str) -> list[str]:
         "frontend": ["artifact", "frontend", "web_app", "local"],
         "react": ["artifact", "frontend", "web_app", "local"],
         "image": ["artifact", "image", "visual"],
+        "rps": ["domain", "rps"],
     }
     for token, values in mapping.items():
         if token in haystack:

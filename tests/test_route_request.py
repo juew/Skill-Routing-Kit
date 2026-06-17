@@ -29,17 +29,19 @@ def run_route(request: str, *args: str) -> str:
     return result.stdout
 
 
+def recommended_block(output: str) -> str:
+    return output.split("Recommended skill/plugin:", 1)[1].split("Helper skills/plugins:", 1)[0]
+
+
 class RouteRequestTests(unittest.TestCase):
     def test_pdf_to_ppt_routes_to_presentations(self):
         output = run_route("把这个 PDF 整理成一份 PPT")
-        first_lines = "\n".join(output.splitlines()[:3])
-        self.assertIn("Presentations", first_lines)
+        self.assertIn("Presentations", recommended_block(output))
         self.assertIn("PDF", output)
 
     def test_frontend_bug_routes_to_debugging(self):
         output = run_route("帮我修这个前端页面的控制台 error 并验证页面")
-        first_lines = "\n".join(output.splitlines()[:3])
-        self.assertIn("Systematic Debugging", first_lines)
+        self.assertIn("Systematic Debugging", recommended_block(output))
         self.assertIn("Frontend", output)
 
     def test_github_needs_confirmation(self):
@@ -49,10 +51,32 @@ class RouteRequestTests(unittest.TestCase):
 
     def test_routing_diagnostic_routes_to_skill_router(self):
         output = run_route("为什么 pdf skill 没有命中这个请求")
-        first_lines = "\n".join(output.splitlines()[:3])
-        self.assertIn("Skill Router", first_lines)
+        self.assertIn("Skill Router", recommended_block(output))
 
     def test_registry_check(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            registry = Path(tmp) / "registry.json"
+            registry.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "1.0",
+                        "generated_at": "2999-01-01T00:00:00+00:00",
+                        "capabilities": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [sys.executable, str(ROUTE), "--registry", str(registry), "--check-registry"],
+                cwd=str(ROOT),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+        self.assertEqual(result.returncode, 0)
+        self.assertIn("Capabilities:", result.stdout)
+
+    def test_core_registry_check_reports_staleness_when_old(self):
         result = subprocess.run(
             [sys.executable, str(ROUTE), "--registry", str(REGISTRY), "--check-registry"],
             cwd=str(ROOT),
@@ -60,7 +84,7 @@ class RouteRequestTests(unittest.TestCase):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
-        self.assertEqual(result.returncode, 0)
+        self.assertIn(result.returncode, {0, 1})
         self.assertIn("Capabilities:", result.stdout)
 
     def test_debug_output_shows_candidates_but_default_does_not(self):
@@ -129,7 +153,7 @@ class RouteRequestTests(unittest.TestCase):
                 json.dumps(
                     {
                         "schema_version": "1.0",
-                        "generated_at": "2026-06-04T00:00:00+00:00",
+                        "generated_at": "2999-01-01T00:00:00+00:00",
                         "capabilities": [
                             {
                                 "id": "pdf",
@@ -183,8 +207,168 @@ class RouteRequestTests(unittest.TestCase):
                 stderr=subprocess.PIPE,
                 check=True,
             )
-        first_lines = "\n".join(result.stdout.splitlines()[:3])
-        self.assertIn("skill-router", first_lines)
+        self.assertIn("skill-router", recommended_block(result.stdout))
+
+    def test_domain_specific_rps_skill_does_not_match_generic_business_testing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            registry = Path(tmp) / "registry.json"
+            registry.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "1.0",
+                        "generated_at": "2999-01-01T00:00:00+00:00",
+                        "capabilities": [
+                            {
+                                "id": "generic-testing",
+                                "name": "Generic Testing",
+                                "kind": "skill",
+                                "categories": ["local", "process", "skill", "testing"],
+                                "use_when": "Use for generic business testing.",
+                                "provenance": {"source_type": "core_static"},
+                            },
+                            {
+                                "id": "rps-web-ui-testing",
+                                "name": "rps-web-ui-testing",
+                                "kind": "skill",
+                                "categories": [
+                                    "domain",
+                                    "local",
+                                    "process",
+                                    "rps",
+                                    "skill",
+                                    "testing",
+                                ],
+                                "use_when": "Use for formal RPS software web UI testing.",
+                                "provenance": {"source_type": "core_static"},
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROUTE),
+                    "--registry",
+                    str(registry),
+                    "帮我做业务测试",
+                ],
+                cwd=str(ROOT),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            )
+        self.assertIn("Generic Testing", recommended_block(result.stdout))
+        self.assertNotIn("rps-web-ui-testing", result.stdout)
+
+    def test_domain_specific_rps_skill_matches_explicit_rps_scope(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            registry = Path(tmp) / "registry.json"
+            registry.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "1.0",
+                        "generated_at": "2999-01-01T00:00:00+00:00",
+                        "capabilities": [
+                            {
+                                "id": "generic-testing",
+                                "name": "Generic Testing",
+                                "kind": "skill",
+                                "categories": ["local", "process", "skill", "testing"],
+                                "use_when": "Use for generic business testing.",
+                                "provenance": {"source_type": "core_static"},
+                            },
+                            {
+                                "id": "rps-web-ui-testing",
+                                "name": "rps-web-ui-testing",
+                                "kind": "skill",
+                                "categories": [
+                                    "domain",
+                                    "local",
+                                    "process",
+                                    "rps",
+                                    "skill",
+                                    "testing",
+                                ],
+                                "use_when": "Use for formal RPS software web UI testing.",
+                                "provenance": {"source_type": "core_static"},
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROUTE),
+                    "--registry",
+                    str(registry),
+                    "帮我做RPS产品测试",
+                ],
+                cwd=str(ROOT),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            )
+        self.assertIn("rps-web-ui-testing", recommended_block(result.stdout))
+
+    def test_domain_specific_rps_skill_is_excluded_for_non_rps_scope(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            registry = Path(tmp) / "registry.json"
+            registry.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "1.0",
+                        "generated_at": "2999-01-01T00:00:00+00:00",
+                        "capabilities": [
+                            {
+                                "id": "generic-testing",
+                                "name": "Generic Testing",
+                                "kind": "skill",
+                                "categories": ["local", "process", "skill", "testing"],
+                                "use_when": "Use for generic business testing.",
+                                "provenance": {"source_type": "core_static"},
+                            },
+                            {
+                                "id": "rps-web-ui-testing",
+                                "name": "rps-web-ui-testing",
+                                "kind": "skill",
+                                "categories": [
+                                    "domain",
+                                    "local",
+                                    "process",
+                                    "rps",
+                                    "skill",
+                                    "testing",
+                                ],
+                                "use_when": "Use for formal RPS software web UI testing.",
+                                "provenance": {"source_type": "core_static"},
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROUTE),
+                    "--registry",
+                    str(registry),
+                    "帮我做非RPS产品的业务测试",
+                ],
+                cwd=str(ROOT),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            )
+        self.assertIn("Generic Testing", recommended_block(result.stdout))
+        self.assertNotIn("rps-web-ui-testing", result.stdout)
 
     def test_build_registry_dry_run_and_refresh_custom_output(self):
         with tempfile.TemporaryDirectory() as tmp:

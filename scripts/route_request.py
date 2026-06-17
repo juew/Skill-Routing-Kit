@@ -24,7 +24,9 @@ DEFAULT_CORE = ROOT / "registry" / "core-capabilities.json"
 STALE_DAYS = 7
 
 
-TOKEN_RE = re.compile(r"[\w.+#/-]+", re.UNICODE)
+TOKEN_RE = re.compile(r"[a-z0-9.+#/-]+|[\u4e00-\u9fff]+", re.IGNORECASE)
+CJK_RE = re.compile(r"[\u4e00-\u9fff]{2,}", re.UNICODE)
+DOMAIN_CATEGORIES = {"rps"}
 
 
 def now_utc() -> datetime:
@@ -46,6 +48,11 @@ def tokenize(text: str) -> set[str]:
     text = text.lower()
     raw = set(TOKEN_RE.findall(text))
     expanded = set(raw)
+    for match in CJK_RE.findall(text):
+        max_width = min(6, len(match))
+        for width in range(2, max_width + 1):
+            for start in range(0, len(match) - width + 1):
+                expanded.add(match[start : start + width])
     aliases = {
         "ppt": "presentation",
         "pptx": "presentation",
@@ -85,6 +92,8 @@ def infer_intents(request: str) -> dict[str, set[str]]:
     artifacts: set[str] = set()
     processes: set[str] = set()
     sources: set[str] = set()
+    domains: set[str] = set()
+    excluded_domains: set[str] = set()
 
     if any(token in text for token in ["ppt", "pptx", "slide", "slides", "deck", "幻灯", "路演"]):
         artifacts.add("presentation")
@@ -133,7 +142,18 @@ def infer_intents(request: str) -> dict[str, set[str]]:
         if source in text:
             sources.add(source)
 
-    return {"artifacts": artifacts, "processes": processes, "sources": sources}
+    if re.search(r"(非|不是|无关|不涉及)\s*rps", text):
+        excluded_domains.add("rps")
+    elif re.search(r"(?<![a-z0-9])rps(?![a-z0-9])", text):
+        domains.add("rps")
+
+    return {
+        "artifacts": artifacts,
+        "processes": processes,
+        "sources": sources,
+        "domains": domains,
+        "excluded_domains": excluded_domains,
+    }
 
 
 def load_registry(path: Path | None) -> tuple[dict[str, Any] | None, Path]:
@@ -228,6 +248,18 @@ def score_card(
 
     categories = set(str(c).lower() for c in card.get("categories", []))
     outputs = set(str(o).lower() for o in card.get("outputs", []))
+    domain_categories = categories & DOMAIN_CATEGORIES
+
+    for excluded_domain in intents["excluded_domains"]:
+        if excluded_domain in categories:
+            score -= 120
+            reasons.append(f"request explicitly excludes domain: {excluded_domain}")
+            do_not_use.append(f"Request explicitly excludes {excluded_domain.upper()} scope.")
+
+    for domain in intents["domains"]:
+        if domain in categories:
+            score += 75
+            reasons.append(f"matches explicit product domain: {domain}")
 
     for artifact in intents["artifacts"]:
         if artifact in categories or artifact in outputs:
@@ -241,6 +273,12 @@ def score_card(
         if process in categories:
             score += 45
             reasons.append(f"matches inferred process need: {process}")
+
+    if domain_categories and not (domain_categories & intents["domains"]):
+        score -= 55
+        reasons.append(
+            "domain-specific capability requires an explicit matching product domain"
+        )
 
     is_skill_router = card_id == "skill-router" or name == "skill router" or name == "skill-router"
     if "routing" in intents["processes"] and is_skill_router:
