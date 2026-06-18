@@ -103,20 +103,37 @@ def infer_intents(request: str) -> dict[str, set[str]]:
         artifacts.add("document")
     if any(token in text for token in ["xlsx", "excel", "csv", "spreadsheet", "表格"]):
         artifacts.add("spreadsheet")
-    if any(token in text for token in ["web", "frontend", "react", "网页", "前端", "看板"]):
+    if any(token in text for token in ["web", "frontend", "react", "网页", "前端", "看板", "页面", "浏览器", "ui"]):
         artifacts.add("web_app")
     if any(token in text for token in ["image", "poster", "海报", "图片"]):
         artifacts.add("image")
 
     if any(token in text for token in ["bug", "error", "failing", "报错", "失败", "修复"]):
         processes.add("debugging")
-    if any(token in text for token in ["test", "测试"]):
+    if any(token in text for token in ["test", "测试", "回归", "验收", "巡检", "pass/fail/blocked"]):
         processes.add("testing")
     if any(token in text for token in ["review", "审核", "评审"]):
         processes.add("review")
     if any(token in text for token in ["plan", "计划", "方案"]):
         processes.add("planning")
-    if any(token in text for token in ["agent", "agents", "subagent", "多 agent", "多agent"]):
+    if any(token in text for token in ["agent", "agents", "subagent", "多 agent", "多agent", "子 agent", "子agent", "主控"]):
+        processes.add("orchestration")
+    if "testing" in processes and any(
+        token in text
+        for token in [
+            "覆盖矩阵",
+            "测试证据",
+            "证据",
+            "截图",
+            "json",
+            "日志",
+            "api",
+            "db",
+            "数据库",
+            "多角色",
+            "多个子",
+        ]
+    ):
         processes.add("orchestration")
     if any(
         token in text
@@ -239,10 +256,11 @@ def score_card(
 
     card_id = str(card.get("id", "")).lower()
     name = str(card.get("name", "")).lower()
+    request_lower = request.lower()
     if card_id and card_id in request.lower():
         score += 25
         reasons.append("explicit capability id mentioned")
-    if name and name in request.lower():
+    if name and name in request_lower:
         score += 20
         reasons.append("explicit capability name mentioned")
 
@@ -273,6 +291,17 @@ def score_card(
         if process in categories:
             score += 45
             reasons.append(f"matches inferred process need: {process}")
+
+    if card_id == "subagent-orchestration" and {"testing", "orchestration"} <= intents["processes"]:
+        score += 35
+        reasons.append("testing workflow requires controller evidence orchestration")
+
+    explicit_rps_scope = "rps" in request_lower and not any(
+        token in request_lower for token in ["非rps", "不是rps", "非 rps", "不是 rps", "non-rps"]
+    )
+    if card_id == "rps-web-ui-testing" and not explicit_rps_scope:
+        score -= 90
+        do_not_use.append("RPS web UI testing is a specialized workflow; require an explicit RPS signal.")
 
     if domain_categories and not (domain_categories & intents["domains"]):
         score -= 55

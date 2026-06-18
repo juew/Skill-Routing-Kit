@@ -370,6 +370,68 @@ class RouteRequestTests(unittest.TestCase):
         self.assertIn("Generic Testing", recommended_block(result.stdout))
         self.assertNotIn("rps-web-ui-testing", result.stdout)
 
+    def test_multi_evidence_regression_routes_to_subagent_orchestration(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            registry = Path(tmp) / "registry.json"
+            registry.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "1.0",
+                        "generated_at": "2999-01-01T00:00:00+00:00",
+                        "capabilities": [
+                            {
+                                "id": "subagent-orchestration",
+                                "name": "subagent-orchestration",
+                                "kind": "skill",
+                                "categories": [
+                                    "local",
+                                    "multi_agent",
+                                    "orchestration",
+                                    "process",
+                                    "skill",
+                                    "testing",
+                                ],
+                                "use_when": "Use for long-running multi-agent evidence testing.",
+                                "provenance": {"source_type": "core_static"},
+                            },
+                            {
+                                "id": "rps-web-ui-testing",
+                                "name": "rps-web-ui-testing",
+                                "kind": "skill",
+                                "categories": [
+                                    "domain",
+                                    "local",
+                                    "orchestration",
+                                    "process",
+                                    "rps",
+                                    "skill",
+                                    "testing",
+                                ],
+                                "use_when": "Use for formal RPS software web UI testing.",
+                                "provenance": {"source_type": "core_static"},
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROUTE),
+                    "--registry",
+                    str(registry),
+                    "做服务器页面回归，需要主控拆分 UI、API、日志、截图、JSON 证据，多个子 Agent 返回后验收",
+                ],
+                cwd=str(ROOT),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            )
+        self.assertIn("subagent-orchestration", recommended_block(result.stdout))
+        self.assertNotIn("rps-web-ui-testing", result.stdout)
+
     def test_build_registry_dry_run_and_refresh_custom_output(self):
         with tempfile.TemporaryDirectory() as tmp:
             output = Path(tmp) / "custom-registry.json"
