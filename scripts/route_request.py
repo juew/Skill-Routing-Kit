@@ -379,6 +379,15 @@ def route_request(request: str, registry: dict[str, Any], debug: bool) -> dict[s
             )
 
     scored.sort(key=lambda item: item["score"], reverse=True)
+    deduped_scored = []
+    seen_ids = set()
+    for item in scored:
+        item_id = item.get("id")
+        if item_id in seen_ids:
+            continue
+        seen_ids.add(item_id)
+        deduped_scored.append(item)
+    scored = deduped_scored
     positive = [item for item in scored if item["score"] > 0]
     primary = positive[0] if positive else None
     helpers = [
